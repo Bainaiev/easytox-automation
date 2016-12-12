@@ -60,6 +60,7 @@ public class AddLocationSteps {
         Thread.sleep(2000);
         driver.findElement(By.cssSelector("#topmenu > li:nth-child(5) > a > img")).click();
         Thread.sleep(5000);
+
     }
 
     @When("^Click on the Lab Client 'Quest'$")
