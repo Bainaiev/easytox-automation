@@ -6,7 +6,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.ExpectedConditions;
+
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -268,29 +268,6 @@ public class ValidityTestGroupImpl {
 
     @Then("^user should be able to submit the data and the added test code should be displayed on the list$")
     public void check_add_and_submit_data() {
-//        Thread.sleep(5000);
-//
-//
-//        WebElement table = MyWebDriverUtils.findElement(driver, TABLE_LOCATOR, LocatorType.ID);
-//        if (table != null) {
-//            Thread.sleep(4000);
-//            List<WebElement> allRows = table.findElements(By.tagName(ROWS_LOCATOR));
-//            for (WebElement row : allRows) {
-//                List<WebElement> cells = row.findElements(By.xpath(CELLS_LOCATOR));
-//                for (WebElement cell : cells) {
-//                    String cellText = cell.getText();
-//                    if (cellText.equals(testData)) {
-//                        Assert.assertEquals(cells.get(1).getText(), ValidityTestGroupImpl.TestCode.DESCRIPTION_VALUE);
-//                        Assert.assertEquals(cells.get(2).getText(), ValidityTestGroupImpl.TestCode.COMPOUNDS_VALUE);
-//                        return;
-//                    }
-//                }
-//            }
-//            Assert.fail("Added test code not found!");
-//        } else {
-//            Assert.fail("table is null!");
-//        }
-
         try {
             final WebElement table = MyWebDriverUtils.findElement(driver, TABLE_LOCATOR, LocatorType.ID);
             if (table != null) {
@@ -804,68 +781,103 @@ public class ValidityTestGroupImpl {
     }
 
     @Then("^the screen should be displayed in normal mode on the Validity Test Group page$")
-    public void the_screen_should_be_displayed_in_normal_mode() throws InterruptedException {
-        Thread.sleep(TIME_STOP);
+    public void the_screen_should_be_displayed_in_normal_mode(){
+        WebElement el = MyWebDriverUtils.findElement(driver, TestCode.FULL_SCREEN_LOCATOR, LocatorType.ID);
+        if (el != null) {
+            Assert.assertEquals(el.getAttribute(ATTRIBUTE_CLASS_LOCATOR), ValidityTestGroupImpl.TestCode.NORMAL_SCREEN_VALUE);
+        } else {
+            Assert.fail("el is null!");
+        }
 
-        WebElement el = driver.findElement(By.id(ValidityTestGroupImpl.TestCode.FULL_SCREEN_LOCATOR));
-        Assert.assertEquals(el.getAttribute(ATTRIBUTE_CLASS_LOCATOR), ValidityTestGroupImpl.TestCode.NORMAL_SCREEN_VALUE);
     }
 
     @When("^clicked on ‘-‘ button on the Validity Test Group page$")
-    public void click_on_sidebar_button() throws InterruptedException {
-        Thread.sleep(TIME_STOP);
+    public void click_on_sidebar_button(){
+        WebElement el = MyWebDriverUtils.findElement(driver, TestCode.SIDEBAR_LOCATOR, LocatorType.CSS);
+        WebDriverWait wait = new WebDriverWait(driver, TIME_OUT_IN_SECONDS);
 
-        driver.findElement(By.cssSelector(ValidityTestGroupImpl.TestCode.SIDEBAR_LOCATOR)).click();
+        boolean flag = MyWebDriverUtils.waitInvisibilityOfElement(wait, TestCode.CONTAINER_LOCATOR, LocatorType.ID);
+        if (flag && el != null) {
+            el.click();
+        } else {
+            Assert.fail("el is null!");
+        }
     }
 
     @Then("^the list should be hidden on the Validity Test Group page$")
-    public void the_list_should_be_hidden() throws InterruptedException {
-        Thread.sleep(TIME_STOP);
-
-        WebElement el = driver.findElement(By.cssSelector(ValidityTestGroupImpl.TestCode.SIDEBAR_ACTIVE_LOCATOR));
-        Assert.assertEquals(el.getAttribute(ATTRIBUTE_CLASS_LOCATOR), ValidityTestGroupImpl.TestCode.SIDEBAR_ACTIVE_VALUE);
+    public void the_list_should_be_hidden(){
+        WebElement el = MyWebDriverUtils.findElement(driver, TestCode.SIDEBAR_ACTIVE_LOCATOR, LocatorType.CSS);
+        if(el != null){
+            Assert.assertEquals(el.getAttribute(ATTRIBUTE_CLASS_LOCATOR), TestCode.SIDEBAR_ACTIVE_VALUE);
+        }
     }
 
     @When("^the list is hidden and clicked on ‘\\+‘ button on the Validity Test Group page$")
-    public void the_list_is_hidden_and_clicked_on_refresh_button() throws InterruptedException {
-        Thread.sleep(TIME_STOP);
+    public void the_list_is_hidden_and_clicked_on_refresh_button(){
+        WebElement el = MyWebDriverUtils.findElement(driver, TestCode.SIDEBAR_LOCATOR, LocatorType.CSS);
+        WebDriverWait wait = new WebDriverWait(driver, TIME_OUT_IN_SECONDS);
 
-        driver.findElement(By.cssSelector(ValidityTestGroupImpl.TestCode.SIDEBAR_LOCATOR)).click();
+        boolean flag = MyWebDriverUtils.waitInvisibilityOfElement(wait, TestCode.CONTAINER_LOCATOR, LocatorType.ID);
+        if (flag && el != null) {
+            el.click();
+        } else {
+            Assert.fail("el is null!");
+        }
 
-        Thread.sleep(TIME_STOP);
-
-        driver.findElement(By.cssSelector(ValidityTestGroupImpl.TestCode.REFRESH_BUTTON_LOCATOR)).click();
+        WebElement refreshButton = MyWebDriverUtils.findElement(driver, TestCode.REFRESH_BUTTON_LOCATOR, LocatorType.CSS);
+        if(refreshButton != null){
+            refreshButton.click();
+        } else{
+            Assert.fail("refreshButton is null!");
+        }
     }
 
     @Then("^the list should be shown on the Validity Test Group page$")
-    public void the_list_should_be_shown() throws InterruptedException {
-        Thread.sleep(TIME_STOP);
+    public void the_list_should_be_shown(){
+        WebElement el = MyWebDriverUtils.findElement(driver, TestCode.SIDEBAR_LOCATOR, LocatorType.CSS);
 
-        WebElement el = driver.findElement(By.cssSelector(ValidityTestGroupImpl.TestCode.SIDEBAR_LOCATOR));
-        Assert.assertEquals(el.getAttribute(ATTRIBUTE_CLASS_LOCATOR), ValidityTestGroupImpl.TestCode.SIDEBAR_VALUE);
+        if(el != null){
+            Assert.assertEquals(el.getAttribute(ATTRIBUTE_CLASS_LOCATOR), TestCode.SIDEBAR_VALUE);
+        } else{
+            Assert.fail("el is null!");
+        }
     }
 
     @When("^the list is hidden and clicked on ‘x‘ button on the Validity Test Group page$")
-    public void the_list_is_hidden_and_clicked_on_maximize_button() throws InterruptedException {
-        Thread.sleep(TIME_STOP);
+    public void the_list_is_hidden_and_clicked_on_maximize_button(){
+        WebElement el = MyWebDriverUtils.findElement(driver, TestCode.SIDEBAR_LOCATOR, LocatorType.CSS);
+        WebDriverWait wait = new WebDriverWait(driver, TIME_OUT_IN_SECONDS);
 
-        driver.findElement(By.cssSelector(ValidityTestGroupImpl.TestCode.SIDEBAR_LOCATOR)).click();
-        Thread.sleep(TIME_STOP);
+        boolean flag = MyWebDriverUtils.waitInvisibilityOfElement(wait, TestCode.CONTAINER_LOCATOR, LocatorType.ID);
+        if (flag && el != null) {
+            el.click();
+        } else {
+            Assert.fail("el is null!");
+        }
 
-        driver.findElement(By.cssSelector(ValidityTestGroupImpl.TestCode.MAXIMIZE_BUTTON_LOCATOR)).click();
+        WebElement maxButton = MyWebDriverUtils.findElement(driver, TestCode.MAXIMIZE_BUTTON_LOCATOR, LocatorType.CSS);
+        if(maxButton != null){
+            maxButton.click();
+        } else {
+            Assert.fail("maxButton is null!");
+        }
     }
 
     @Then("^the list should be closed on the Validity Test Group page$")
-    public void the_list_should_be_closed() throws InterruptedException {
-        Thread.sleep(TIME_STOP);
+    public void the_list_should_be_closed(){
+        WebElement el = MyWebDriverUtils.findElement(driver, TestCode.FULL_SCREEN_LOCATOR, LocatorType.ID);
+        if(el != null){
+            Assert.assertEquals(el.getAttribute(ATTRIBUTE_CLASS_LOCATOR), ValidityTestGroupImpl.TestCode.FULL_SCREEN_VALUE);
+        } else {
+            Assert.fail("el is null!");
+        }
 
-        WebElement el = driver.findElement(By.id(ValidityTestGroupImpl.TestCode.FULL_SCREEN_LOCATOR));
-        Assert.assertEquals(el.getAttribute(ATTRIBUTE_CLASS_LOCATOR), ValidityTestGroupImpl.TestCode.FULL_SCREEN_VALUE);
-
-        WebElement el1 = driver.findElement(By.cssSelector(ValidityTestGroupImpl.TestCode.SIDEBAR_ACTIVE_LOCATOR));
-        Assert.assertEquals(el1.getAttribute(ATTRIBUTE_CLASS_LOCATOR), ValidityTestGroupImpl.TestCode.SIDEBAR_ACTIVE_VALUE);
-
-
+        WebElement el1 = MyWebDriverUtils.findElement(driver, TestCode.SIDEBAR_ACTIVE_LOCATOR, LocatorType.CSS);
+        if(el1 != null){
+            Assert.assertEquals(el1.getAttribute(ATTRIBUTE_CLASS_LOCATOR), ValidityTestGroupImpl.TestCode.SIDEBAR_ACTIVE_VALUE);
+        } else {
+            Assert.fail("el1 is null!");
+        }
     }
 
 
@@ -956,34 +968,6 @@ public class ValidityTestGroupImpl {
 
         driver.findElement(By.xpath(LOGIN_BUTTON_XPATH)).click();
     }
-
-//    private WebElement findElement(WebDriver driver, final String locator, LocatorType locatorType) {
-//
-//        final WebDriverWait webDriverWait = new WebDriverWait(driver, TIME_OUT_IN_SECONDS);
-//
-//        switch (locatorType) {
-//            case XPATH:
-//                return webDriverWait
-//                        .until(ExpectedConditions.elementToBeClickable(By.xpath(locator)));
-//            case CLASS:
-//                return webDriverWait
-//                        .until(ExpectedConditions.elementToBeClickable(By.className(locator)));
-//            case ID:
-//                return webDriverWait
-//                        .until(ExpectedConditions.elementToBeClickable(By.id(locator)));
-//            case TAG:
-//                return webDriverWait
-//                        .until(ExpectedConditions.elementToBeClickable(By.tagName(locator)));
-//            case NAME:
-//                return webDriverWait
-//                        .until(ExpectedConditions.elementToBeClickable(By.name(locator)));
-//            case CSS:
-//                return webDriverWait
-//                        .until(ExpectedConditions.elementToBeClickable(By.cssSelector(locator)));
-//
-//        }
-//        return null;
-//    }
 
     private void edit() {
         WebElement description = MyWebDriverUtils.findElement(driver, ValidityTestGroupImpl.TestCode.DESCRIPTION_LOCATOR, LocatorType.ID);

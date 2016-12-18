@@ -44,44 +44,72 @@ public class MyWebDriverUtils {
         return null;
     }
 
-    public static WebElement findElement(WebDriver driver, int timeOutInSeconds, final String locator, LocatorType locatorType, final WebElement el) {
+    public static WebElement findElement(WebDriver driver, final String locator, LocatorType locatorType, final WebElement el) {
         switch (locatorType) {
             case XPATH:
-                return (new WebDriverWait(driver, timeOutInSeconds)).until(new ExpectedCondition<WebElement>() {
+                return (new WebDriverWait(driver, TIME_OUT_IN_SECONDS)).until(new ExpectedCondition<WebElement>() {
                     public WebElement apply(WebDriver input) {
                         return el.findElement(By.xpath(locator));
                     }
                 });
             case CLASS:
-                return (new WebDriverWait(driver, timeOutInSeconds)).until(new ExpectedCondition<WebElement>() {
+                return (new WebDriverWait(driver, TIME_OUT_IN_SECONDS)).until(new ExpectedCondition<WebElement>() {
                     public WebElement apply(WebDriver input) {
                         return el.findElement(By.className(locator));
                     }
                 });
             case ID:
-                return (new WebDriverWait(driver, timeOutInSeconds)).until(new ExpectedCondition<WebElement>() {
+                return (new WebDriverWait(driver, TIME_OUT_IN_SECONDS)).until(new ExpectedCondition<WebElement>() {
                     public WebElement apply(WebDriver input) {
                         return el.findElement(By.id(locator));
                     }
                 });
             case TAG:
-                return (new WebDriverWait(driver, timeOutInSeconds)).until(new ExpectedCondition<WebElement>() {
+                return (new WebDriverWait(driver, TIME_OUT_IN_SECONDS)).until(new ExpectedCondition<WebElement>() {
                     public WebElement apply(WebDriver input) {
                         return el.findElement(By.tagName(locator));
                     }
                 });
             case NAME:
-                return (new WebDriverWait(driver, timeOutInSeconds)).until(new ExpectedCondition<WebElement>() {
+                return (new WebDriverWait(driver, TIME_OUT_IN_SECONDS)).until(new ExpectedCondition<WebElement>() {
                     public WebElement apply(WebDriver input) {
                         return el.findElement(By.name(locator));
                     }
                 });
             case CSS:
-                return (new WebDriverWait(driver, timeOutInSeconds)).until(new ExpectedCondition<WebElement>() {
+                return (new WebDriverWait(driver, TIME_OUT_IN_SECONDS)).until(new ExpectedCondition<WebElement>() {
                     public WebElement apply(WebDriver input) {
                         return el.findElement(By.cssSelector(locator));
                     }
                 });
+        }
+        return null;
+    }
+
+    public static WebElement findPresenceElement(WebDriver driver, final String locator, LocatorType locatorType) {
+
+        final WebDriverWait webDriverWait = new WebDriverWait(driver, TIME_OUT_IN_SECONDS);
+
+        switch (locatorType) {
+            case XPATH:
+                return webDriverWait
+                        .until(ExpectedConditions.presenceOfElementLocated(By.xpath(locator)));
+            case CLASS:
+                return webDriverWait
+                        .until(ExpectedConditions.presenceOfElementLocated(By.className(locator)));
+            case ID:
+                return webDriverWait
+                        .until(ExpectedConditions.presenceOfElementLocated(By.id(locator)));
+            case TAG:
+                return webDriverWait
+                        .until(ExpectedConditions.presenceOfElementLocated(By.tagName(locator)));
+            case NAME:
+                return webDriverWait
+                        .until(ExpectedConditions.presenceOfElementLocated(By.name(locator)));
+            case CSS:
+                return webDriverWait
+                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(locator)));
+
         }
         return null;
     }
@@ -122,6 +150,48 @@ public class MyWebDriverUtils {
                 return (new WebDriverWait(driver, TIME_OUT_IN_SECONDS)).until(new ExpectedCondition<List<WebElement>>() {
                     public List<WebElement> apply(WebDriver input) {
                         return el.findElements(By.cssSelector(locator));
+                    }
+                });
+        }
+        return null;
+    }
+
+    public static List<WebElement> findElements(final WebDriver driver, final String locator, LocatorType locatorType) {
+        switch (locatorType) {
+            case XPATH:
+                return (new WebDriverWait(driver, TIME_OUT_IN_SECONDS)).until(new ExpectedCondition<List<WebElement>>() {
+                    public List<WebElement> apply(WebDriver input) {
+                        return driver.findElements(By.xpath(locator));
+                    }
+                });
+            case CLASS:
+                return (new WebDriverWait(driver, TIME_OUT_IN_SECONDS)).until(new ExpectedCondition<List<WebElement>>() {
+                    public List<WebElement> apply(WebDriver input) {
+                        return driver.findElements(By.className(locator));
+                    }
+                });
+            case ID:
+                return (new WebDriverWait(driver, TIME_OUT_IN_SECONDS)).until(new ExpectedCondition<List<WebElement>>() {
+                    public List<WebElement> apply(WebDriver input) {
+                        return driver.findElements(By.id(locator));
+                    }
+                });
+            case TAG:
+                return (new WebDriverWait(driver, TIME_OUT_IN_SECONDS)).until(new ExpectedCondition<List<WebElement>>() {
+                    public List<WebElement> apply(WebDriver input) {
+                        return driver.findElements(By.tagName(locator));
+                    }
+                });
+            case NAME:
+                return (new WebDriverWait(driver, TIME_OUT_IN_SECONDS)).until(new ExpectedCondition<List<WebElement>>() {
+                    public List<WebElement> apply(WebDriver input) {
+                        return driver.findElements(By.name(locator));
+                    }
+                });
+            case CSS:
+                return (new WebDriverWait(driver, TIME_OUT_IN_SECONDS)).until(new ExpectedCondition<List<WebElement>>() {
+                    public List<WebElement> apply(WebDriver input) {
+                        return driver.findElements(By.cssSelector(locator));
                     }
                 });
         }
