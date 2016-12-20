@@ -11,6 +11,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -1605,12 +1606,86 @@ public class LabClientImpl {
 
     @When("^Enter all the information in the Physician screen and click Submit$")
     public void enter_all_the_information() {
+        Physician.physicianUserName = StringUtils.generateRandom();
+        selectOption(Physician.LAB_CLIENT_LOCATOR, LocatorType.ID, Physician.LAB_CLIENT);
+        enterData(Physician.USER_NAME_LOCATOR, Physician.physicianUserName, LocatorType.NAME);
+        enterData(Physician.PASSWORD_LOCATOR, Physician.PASSWORD, LocatorType.NAME);
+        enterData(Physician.FIRST_NAME_LOCATOR, Physician.FIRST_NAME, LocatorType.NAME);
+        enterData(Physician.LAST_NAME_LOCATOR, Physician.LAST_NAME, LocatorType.NAME);
+        enterData(Physician.MIDDLE_NAME_LOCATOR, Physician.MIDDLE_NAME, LocatorType.NAME);
+        enterData(Physician.MEDICAL_DEGREE_LOCATOR, Physician.MEDICAL_DEGREE, LocatorType.NAME);
+        enterData(Physician.PHONE_NUMBER_LOCATOR, Physician.PHONE_NUMBER, LocatorType.NAME);
+        enterData(Physician.EMAIL_ADDRESS_LOCATOR, Physician.EMAIL_ADDRESS, LocatorType.NAME);
+        enterData(Physician.SALUTATION_LOCATOR, Physician.SALUTATION, LocatorType.NAME);
+        enterData(Physician.FIRST_NAME_LOCATOR, Physician.FIRST_NAME, LocatorType.NAME);
+        enterData(Physician.MEDICARE_NUMBER_LOCATOR, Physician.MEDICARE_NUMBER, LocatorType.NAME);
+        enterData(Physician.MEDICAID_NUMBER_LOCATOR, Physician.MEDICAID_NUMBER, LocatorType.NAME);
+        enterData(Physician.UPIN_NUMBER_LOCATOR, Physician.UPIN_NUMBER, LocatorType.NAME);
+        enterData(Physician.STATE_LICENCE_LOCATOR, Physician.STATE_LICENCE, LocatorType.NAME);
+        enterData(Physician.NPI_LOCATOR, Physician.NPI, LocatorType.NAME);
+
+        selectOption(Physician.COMPOUND_PROFILE_LOCATOR, LocatorType.ID, Physician.COMPOUND_PROFILE);
+
+        WebElement plusButton = MyWebDriverUtils.findElement(driver, Physician.PLUS_ONE_ICON_LOCATOR, LocatorType.CSS);
+        WebDriverWait wait = new WebDriverWait(driver, TIME_OUT_IN_SECONDS);
+
+        boolean flag = MyWebDriverUtils.waitInvisibilityOfElement(wait, CONTAINER_LOCATOR, LocatorType.ID);
+        if (flag) {
+            checkAndClick(plusButton);
+        } else {
+            Assert.fail("flag is false!");
+        }
+
+
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(Physician.LOCATION_LOCATOR)));
+        selectOption(Physician.LOCATION_LOCATOR, LocatorType.ID, Physician.LOCATION);
+
+        WebElement el = MyWebDriverUtils.findElement(driver, Physician.CHECKBOX_ONE_LOCATOR, LocatorType.CSS);
+        checkAndClick(el);
+
+
+        plusButton = MyWebDriverUtils.findElement(driver, Physician.PLUS_TWO_ICON_LOCATOR, LocatorType.CSS);
+        checkAndClick(plusButton);
+
+
+        el = MyWebDriverUtils.findElement(driver, Physician.CHECKBOX_TWO_LOCATOR, LocatorType.CSS);
+        checkAndClick(el);
+
+        WebElement submit = MyWebDriverUtils.findElement(driver, Physician.SUBMIT_LOCATOR , LocatorType.CSS);
+        checkAndClick(submit);
 
     }
 
     @Then("^Clinician should be added successfully$")
     public void clinician_should_be_added_successfully() {
+        String currentUrl = driver.getCurrentUrl();
+        Assert.assertEquals(currentUrl, "http://bmtechsol.com:8080/easytox/clinician/clinicianlist");
 
+        WebElement widget = MyWebDriverUtils.findPresenceElement(driver, "#maincontentdiv > div.page-body > div.alert.alert-success.fade.in > strong", LocatorType.CSS);
+        if (widget != null) {
+            String title = widget.getText();
+            Assert.assertEquals(title, SUCCESS_VALUE);
+        }
+    }
+
+    private void enterData(String locator, String value, LocatorType type){
+        WebElement field = MyWebDriverUtils.findElement(driver, locator, type);
+        if (field != null) {
+            field.clear();
+            field.sendKeys(value);
+        } else {
+            Assert.fail("field is null!");
+        }
+    }
+
+    private void selectOption(String locator, LocatorType type, String option){
+        WebElement el = MyWebDriverUtils.findElement(driver, locator, type);
+        if (el != null) {
+            new Select(el).selectByVisibleText(option);
+        } else{
+            Assert.fail("el is null");
+        }
     }
 
     /*
@@ -1966,8 +2041,7 @@ public class LabClientImpl {
         private Physician() {
         }
 
-
-        //private static final String USER_NAME = "mas";
+        private static String physicianUserName;
         private static final String PASSWORD = "Welcome@123";
         private static final String FIRST_NAME = "Alexander";
         private static final String MIDDLE_NAME = "Khasanovich";
@@ -1975,15 +2049,15 @@ public class LabClientImpl {
         private static final String MEDICAL_DEGREE = "Master";
         private static final String PHONE_NUMBER = "1111111111";
         private static final String EMAIL_ADDRESS = "master@gmail.com";
-        private static final String SALUTATION = "";
-        private static final String MEDICARE_NUMBER = "";
-        private static final String MEDICAID_NUMBER = "";
-        private static final String UPIN_NUMBER = "";
-        private static final String STATE_LICENCE = "";
-        private static final String NPI = "";
-        private static final String COMPOUND_PROFILE = "";
-        private static final String LAB_CLIENT = "";
-        private static final String LOCATION = "";
+        private static final String SALUTATION = "Salutation";
+        private static final String MEDICARE_NUMBER = "123";
+        private static final String MEDICAID_NUMBER = "456";
+        private static final String UPIN_NUMBER = "789";
+        private static final String STATE_LICENCE = "licence";
+        private static final String NPI = "npi";
+        private static final String COMPOUND_PROFILE = "Test Profile 1";
+        private static final String LAB_CLIENT = "CGI Tox Client1";
+        private static final String LOCATION = "Location";
 
 
         private static final String USER_NAME_LOCATOR = "user.username";
@@ -2003,5 +2077,11 @@ public class LabClientImpl {
         private static final String COMPOUND_PROFILE_LOCATOR = "profiles";
         private static final String LAB_CLIENT_LOCATOR = "labclientselect";
         private static final String LOCATION_LOCATOR = "lablocations";
+        private static final String PLUS_ONE_ICON_LOCATOR = "#form > div:nth-child(13) > div:nth-child(2) > button";
+        private static final String PLUS_TWO_ICON_LOCATOR = "#form > div:nth-child(18) > div:nth-child(3) > button";
+        private static final String CHECKBOX_ONE_LOCATOR = "#form > table:nth-child(16) > tbody > tr:nth-child(1) > td:nth-child(2) > div > label > span";
+        private static final String CHECKBOX_TWO_LOCATOR = "#form > table:nth-child(21) > tbody > tr:nth-child(1) > td:nth-child(2) > div > label > span";
+        private static final String SUBMIT_LOCATOR = "#form > button.btn.btn-primary.btn-md";
+
     }
 }

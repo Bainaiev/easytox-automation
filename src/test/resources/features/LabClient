@@ -135,7 +135,7 @@ Feature: Lab client
 
     When Click on the '+' Icon
     Then Add Physician screen is displayed
-# After entered all the information , i can't submit data!!!!
+
     When Enter all the information in the Physician screen and click Submit
     Then Clinician should be added successfully
 
