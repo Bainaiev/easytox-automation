@@ -1,6 +1,6 @@
 Feature: Lab client
 
-  ##################   1
+
   Scenario: Verify creation of a new lab client
     Given Login in web app
     When Select Settings -> Lab Client
@@ -15,7 +15,6 @@ Feature: Lab client
     When Click '+' icon against newly created lab client
     Then Following values should be populated: Address - it should populate entered Address lines 1 and 2 Lab - it should populate Lab name
 
-#  ##################   2
   Scenario: Verify updating data for an existing lab client
     Given Login in web app
     When Select Settings -> Lab Client
@@ -29,7 +28,7 @@ Feature: Lab client
 
     When Click '+' icon against updated lab client
     Then Following values should be updated with changed data: Address - it should populate entered Address lines 1 and 2 Lab - it should populate Lab name
-#  ##################   3
+
   Scenario: Verify adding location to a lab client
     Given Login in web app
     When Select Settings -> Lab Client
@@ -43,7 +42,7 @@ Feature: Lab client
 
     When Enter Location Name and the remaining details and click on 'Submit'
     Then Added location should be added to the Location list
-#  ##################   4
+
   Scenario: Verify editing location of a lab client
     Given Login in web app
     When Select Settings -> Lab Client
@@ -57,7 +56,7 @@ Feature: Lab client
 
     When Make required changes and click Update
     Then Lab location should be updated successfully
-#  ##################   5
+
   Scenario: Verify adding user to a lab client
     Given Login in web app
     When Select Settings -> Lab Client
@@ -71,7 +70,7 @@ Feature: Lab client
 
     When Enter User information, Personal information and select lab information. click on 'Submit'
     Then Added user should be added to the Lab Client User list
-  ##################   6
+
   Scenario: Verify editing user to a lab client
     Given Login in web app
     When Select Settings -> Lab Client
@@ -91,7 +90,7 @@ Feature: Lab client
 
     When Click '+' icon against newly created user
     Then Following values should be populated with updated information: Modified By Modified Date(with Timestamp)
-  #################   7
+
   Scenario: Verify locking access for a lab client user
     Given Login in web app
     When Select Settings -> Lab Client
@@ -106,7 +105,7 @@ Feature: Lab client
     When Logout and attempt logging in with the above lab user credentials
     Then Account locked message should be populated and user should not be able to login to application
 
-    #################   8
+
   Scenario: Verify adding notes to a lab client
     Given Login in web app
     When Select Settings -> Lab Client
@@ -124,7 +123,7 @@ Feature: Lab client
     When Click 'Edit' icon against the newly added note
     Then Notes should be opened for edit
 
-####################### 9
+
   Scenario: Verify adding Clinician to a lab client
     Given Login in web app
     When Select Settings -> Lab Client
@@ -140,7 +139,6 @@ Feature: Lab client
     Then Clinician should be added successfully
 
 
-####################### 10
   Scenario: Verify the Search Results
     Given Login in web app
     When Select Settings -> Lab Client
@@ -149,7 +147,7 @@ Feature: Lab client
     When Enter any search criteria and click on search icon
     Then Matching records with entered data should be displayed in the Lab Client list
 
-###################### 11
+
   Scenario Outline: Verify Number of records displayed per page
     Given Login in web app
     When Select Settings -> Lab Client
@@ -166,10 +164,9 @@ Feature: Lab client
       | 25     |
       | 50     |
       | 100    |
-#      | All    |
+      | All    |
 
 
-#################### 12
   Scenario Outline: Verify data sorting
     Given Login in web app
     When Select Settings -> Lab Client
@@ -189,7 +186,7 @@ Feature: Lab client
       | Contact Number |
       | Email          |
 
-################### 13
+
   Scenario Outline: Verify the page navigation
     Given Login in web app
     When Select Settings -> Lab Client

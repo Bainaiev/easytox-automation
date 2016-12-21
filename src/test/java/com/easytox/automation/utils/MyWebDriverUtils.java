@@ -1,11 +1,14 @@
 package com.easytox.automation.utils;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 
 import java.util.List;
 
@@ -15,6 +18,10 @@ import java.util.List;
 public class MyWebDriverUtils {
 
     private static final int TIME_OUT_IN_SECONDS = 10;
+    private static final String CONTAINER_LOCATOR = "loadingDiv";
+
+    private static final String CELL_LOCATOR = "td";
+    private static final String ROWS_LOCATOR = "tr";
 
     public static WebElement findElement(WebDriver driver, final String locator, LocatorType locatorType) {
 
@@ -215,4 +222,115 @@ public class MyWebDriverUtils {
         }
         return false;
     }
+
+    public static void waitContainerThenClick(WebDriver driver, String locator, LocatorType type) {
+        WebElement element = MyWebDriverUtils.findElement(driver, locator, type);
+        WebDriverWait wait = new WebDriverWait(driver, TIME_OUT_IN_SECONDS);
+
+        boolean flag = waitInvisibilityOfElement(wait, CONTAINER_LOCATOR, LocatorType.ID);
+        if (flag) {
+            if (element != null) {
+                element.click();
+            } else {
+                Assert.fail("element is null!");
+            }
+        } else {
+            Assert.fail("flag is false!");
+        }
+    }
+
+    public static void click(WebDriver driver, String locator, LocatorType type) {
+        WebElement element = findElement(driver, locator, type);
+        if (element != null) {
+            element.click();
+        } else {
+            Assert.fail("element is null");
+        }
+    }
+
+    public static void enterData(WebDriver driver, String locator, LocatorType type, String value) {
+        WebElement element = findPresenceElement(driver, locator, type);
+        if (element != null) {
+            element.clear();
+            element.sendKeys(value);
+        } else {
+            Assert.fail("element is null!");
+        }
+    }
+
+    public static void authorization(WebDriver driver, String url,
+                                     String userLocator, LocatorType userType, String userName,
+                                     String passLocator, LocatorType passType, String password,
+                                     String buttonLocator, LocatorType buttonType) {
+        driver.navigate().to(url);
+        enterData(driver, userLocator, userType, userName);
+        enterData(driver, passLocator, passType, password);
+        click(driver, buttonLocator, buttonType);
+    }
+
+    public static void checkCurrentUrl(WebDriver driver, String url) {
+        Assert.assertEquals(driver.getCurrentUrl(), url);
+    }
+
+    public static void checkWidgetCaption(WebDriver driver, String widgetLocator, LocatorType type, String widgetValue) {
+        WebElement element = findPresenceElement(driver, widgetLocator, type);
+        if (element != null) {
+            String title = element.getText();
+            Assert.assertEquals(title, widgetValue);
+        } else {
+            Assert.fail("element is null!");
+        }
+    }
+
+    public static void selectOption(WebDriver driver, String locator, LocatorType type, String option) {
+        WebElement element = findElement(driver, locator, type);
+        if (element != null) {
+            new Select(element).selectByVisibleText(option);
+        } else {
+            Assert.fail("element is null");
+        }
+    }
+
+    public static List<WebElement> getCells(WebDriver driver, String tableLocator, LocatorType type, int rowNum, int cellsSize) {
+        final WebElement table = MyWebDriverUtils.findElement(driver, tableLocator, type);
+        if (table != null) {
+            List<WebElement> listRows = MyWebDriverUtils.findElements(driver, ROWS_LOCATOR, LocatorType.TAG, table);
+            if (listRows != null) {
+                int size = listRows.size();
+                if(rowNum >= size){
+                    return null;
+                }
+                List<WebElement> listCells = MyWebDriverUtils.findElements(driver, CELL_LOCATOR, LocatorType.TAG, listRows.get(rowNum));
+
+                if (listCells != null && listCells.size() == cellsSize) {
+                    return listCells;
+                } else {
+                    throw new StaleElementReferenceException("listCells size is not equal " + cellsSize);
+                }
+            } else {
+                Assert.fail("listRows is null!");
+            }
+        } else {
+            Assert.fail("table is null!");
+        }
+        return null;
+    }
+
+
+    public static int getRowsSize(WebDriver driver, String tableLocator, LocatorType type) {
+        final WebElement table = MyWebDriverUtils.findElement(driver, tableLocator, type);
+        if (table != null) {
+            List<WebElement> listRows = MyWebDriverUtils.findElements(driver, ROWS_LOCATOR, LocatorType.TAG, table);
+            if (listRows != null) {
+                return listRows.size() - 1;
+            } else {
+                Assert.fail("listRows is null!");
+            }
+        }
+        return 0;
+    }
+
+
+
+
 }
