@@ -282,6 +282,8 @@ public class MyWebDriverUtils {
         }
     }
 
+
+
     public static void selectOption(WebDriver driver, String locator, LocatorType type, String option) {
         WebElement element = findElement(driver, locator, type);
         if (element != null) {

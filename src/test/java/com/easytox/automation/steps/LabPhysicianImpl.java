@@ -151,7 +151,8 @@ public class LabPhysicianImpl {
 
     @Then("^New Physician is created successfully$")
     public void new_physician_is_created_successfully() {
-
+        MyWebDriverUtils.checkCurrentUrl(driver, PHYSICIAN_LIST_URL);
+        MyWebDriverUtils.checkWidgetCaption(driver, SUCCESS_UPDATE_LOCATOR, LocatorType.CSS, "x\nSuccess Clinician "+Physician.physicianUserName+" created");
     }
 
     /*
