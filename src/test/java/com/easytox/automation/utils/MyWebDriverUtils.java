@@ -10,7 +10,11 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Alexander on 12.12.2016.
@@ -19,9 +23,15 @@ public class MyWebDriverUtils {
 
     private static final int TIME_OUT_IN_SECONDS = 10;
     private static final String CONTAINER_LOCATOR = "loadingDiv";
+    private static final int BOUND = 10000;
+    private static final String REGEXP = "^(\\d+)/(\\w+)/(\\d{4})(\\s)(\\d{2}):(\\d{2}):(\\d{2})$";
+
 
     private static final String CELL_LOCATOR = "td";
+    private static final String OPTION_LOCATOR = "option";
     private static final String ROWS_LOCATOR = "tr";
+    private static final String TH_LOCATOR = "th";
+    private static final String CELLS_LOCATOR = "./*";
 
     public static WebElement findElement(WebDriver driver, final String locator, LocatorType locatorType) {
 
@@ -116,6 +126,34 @@ public class MyWebDriverUtils {
             case CSS:
                 return webDriverWait
                         .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(locator)));
+
+        }
+        return null;
+    }
+
+    public static WebElement findVisibilityElement(WebDriver driver, final String locator, LocatorType locatorType) {
+
+        final WebDriverWait webDriverWait = new WebDriverWait(driver, TIME_OUT_IN_SECONDS);
+
+        switch (locatorType) {
+            case XPATH:
+                return webDriverWait
+                        .until(ExpectedConditions.visibilityOfElementLocated(By.xpath(locator)));
+            case CLASS:
+                return webDriverWait
+                        .until(ExpectedConditions.visibilityOfElementLocated(By.className(locator)));
+            case ID:
+                return webDriverWait
+                        .until(ExpectedConditions.visibilityOfElementLocated(By.id(locator)));
+            case TAG:
+                return webDriverWait
+                        .until(ExpectedConditions.visibilityOfElementLocated(By.tagName(locator)));
+            case NAME:
+                return webDriverWait
+                        .until(ExpectedConditions.visibilityOfElementLocated(By.name(locator)));
+            case CSS:
+                return webDriverWait
+                        .until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(locator)));
 
         }
         return null;
@@ -224,10 +262,26 @@ public class MyWebDriverUtils {
     }
 
     public static void waitContainerThenClick(WebDriver driver, String locator, LocatorType type) {
-        WebElement element = MyWebDriverUtils.findElement(driver, locator, type);
+        WebElement element = findElement(driver, locator, type);
         WebDriverWait wait = new WebDriverWait(driver, TIME_OUT_IN_SECONDS);
 
         boolean flag = waitInvisibilityOfElement(wait, CONTAINER_LOCATOR, LocatorType.ID);
+        if (flag) {
+            if (element != null) {
+                element.click();
+            } else {
+                Assert.fail("element is null!");
+            }
+        } else {
+            Assert.fail("flag is false!");
+        }
+    }
+
+    public static void waitContainerThenClick(WebDriver driver, String locator, LocatorType type, String contLocator, LocatorType locatorType){
+        WebElement element = findElement(driver, locator, type);
+        WebDriverWait wait = new WebDriverWait(driver, TIME_OUT_IN_SECONDS);
+
+        boolean flag = waitInvisibilityOfElement(wait, contLocator, LocatorType.ID);
         if (flag) {
             if (element != null) {
                 element.click();
@@ -282,6 +336,15 @@ public class MyWebDriverUtils {
         }
     }
 
+    public static void checkPageCaption(WebDriver driver, String widgetLocator, LocatorType type, String widgetValue) {
+        WebElement element = findVisibilityElement(driver, widgetLocator, type);
+        if (element != null) {
+            String title = element.getText();
+            Assert.assertEquals(title, widgetValue);
+        } else {
+            Assert.fail("element is null!");
+        }
+    }
 
 
     public static void selectOption(WebDriver driver, String locator, LocatorType type, String option) {
@@ -293,16 +356,32 @@ public class MyWebDriverUtils {
         }
     }
 
+    public static List<WebElement> getOptions(WebDriver driver, String locator, LocatorType type) {
+        WebElement select = findElement(driver, locator, type);
+        if (select != null) {
+
+            return findElements(driver, OPTION_LOCATOR, LocatorType.TAG, select);
+
+        } else {
+            Assert.fail("element is null!");
+        }
+        return null;
+
+    }
+
     public static List<WebElement> getCells(WebDriver driver, String tableLocator, LocatorType type, int rowNum, int cellsSize) {
-        final WebElement table = MyWebDriverUtils.findElement(driver, tableLocator, type);
+        final WebElement table = findElement(driver, tableLocator, type);
         if (table != null) {
-            List<WebElement> listRows = MyWebDriverUtils.findElements(driver, ROWS_LOCATOR, LocatorType.TAG, table);
+            List<WebElement> listRows = findElements(driver, ROWS_LOCATOR, LocatorType.TAG, table);
             if (listRows != null) {
                 int size = listRows.size();
-                if(rowNum >= size){
+                if (rowNum >= size) {
                     return null;
                 }
-                List<WebElement> listCells = MyWebDriverUtils.findElements(driver, CELL_LOCATOR, LocatorType.TAG, listRows.get(rowNum));
+                if (rowNum == -1) {
+                    rowNum = size - 1;
+                }
+                List<WebElement> listCells = findElements(driver, CELL_LOCATOR, LocatorType.TAG, listRows.get(rowNum));
 
                 if (listCells != null && listCells.size() == cellsSize) {
                     return listCells;
@@ -318,11 +397,59 @@ public class MyWebDriverUtils {
         return null;
     }
 
+    public static List<WebElement> getTh(WebDriver driver, String tableLocator, LocatorType type, int cellsSize) {
+        final WebElement table = findElement(driver, tableLocator, type);
+        if (table != null) {
+            List<WebElement> listRows = findElements(driver, ROWS_LOCATOR, LocatorType.TAG, table);
+            if (listRows != null) {
+                List<WebElement> listCells = findElements(driver, TH_LOCATOR, LocatorType.TAG, listRows.get(0));
+
+                if (listCells != null && listCells.size() == cellsSize) {
+                    return listCells;
+                } else {
+                    throw new StaleElementReferenceException("listCells size is not equal " + cellsSize);
+                }
+            } else {
+                Assert.fail("listRows is null!");
+            }
+        } else {
+            Assert.fail("table is null!");
+        }
+        return null;
+    }
+
+    public static List<List<WebElement>> getAllCells(WebDriver driver, String tableLocator, LocatorType type, int cellsSize) {
+        List<List<WebElement>> allCells = new ArrayList<>();
+        final WebElement table = findElement(driver, tableLocator, type);
+        if (table != null) {
+            List<WebElement> listRows = findElements(driver, ROWS_LOCATOR, LocatorType.TAG, table);
+            if (listRows != null) {
+                for (int i = 1; i < listRows.size(); i++) {
+                    List<WebElement> listCells = findElements(driver, CELL_LOCATOR, LocatorType.TAG, listRows.get(i));
+
+                    if (listCells != null && listCells.size() == cellsSize) {
+                        allCells.add(listCells);
+                    } else {
+                        throw new StaleElementReferenceException("listCells size is not equal " + cellsSize + ", " + listCells.size());
+                    }
+                }
+                return allCells;
+
+            } else {
+                Assert.fail("listRows is null!");
+            }
+        } else {
+            Assert.fail("table is null!");
+        }
+
+        return null;
+    }
+
 
     public static int getRowsSize(WebDriver driver, String tableLocator, LocatorType type) {
         final WebElement table = MyWebDriverUtils.findElement(driver, tableLocator, type);
         if (table != null) {
-            List<WebElement> listRows = MyWebDriverUtils.findElements(driver, ROWS_LOCATOR, LocatorType.TAG, table);
+            List<WebElement> listRows = findElements(driver, ROWS_LOCATOR, LocatorType.TAG, table);
             if (listRows != null) {
                 return listRows.size() - 1;
             } else {
@@ -332,7 +459,59 @@ public class MyWebDriverUtils {
         return 0;
     }
 
+    public static int getRandomNumber() {
+        Random random = new Random();
+        return random.nextInt(BOUND) + 1;
+    }
 
+    public static int[] parseDate(String date) {
+        int day = 0;
+        int month = 0;
+        int year = 0;
+        int hour = 0;
+        int minute = 0;
+        int second = 0;
+        Pattern p = Pattern.compile(REGEXP);
+        Matcher m = p.matcher(date);
+        if (m.find()) {
+            day = Integer.parseInt(m.group(1));
+            month = getNumMonth(m.group(2));
+            year = Integer.parseInt(m.group(3));
+            hour = Integer.parseInt(m.group(5));
+            minute = Integer.parseInt(m.group(6));
+            second = Integer.parseInt(m.group(5));
+        }
 
+        return new int[]{year, month, day, hour, minute, second};
+    }
 
+    public static int getNumMonth(String month) {
+        switch (month) {
+            case "Dec":
+                return 12;
+            case "Nov":
+                return 11;
+            case "Oct":
+                return 10;
+            case "Sept":
+                return 9;
+            case "Aug":
+                return 8;
+            case "July":
+                return 7;
+            case "June":
+                return 6;
+            case "May":
+                return 5;
+            case "Apr":
+                return 4;
+            case "Mar":
+                return 3;
+            case "Feb":
+                return 2;
+            case "Jan":
+                return 1;
+            default: return -1;
+        }
+    }
 }
