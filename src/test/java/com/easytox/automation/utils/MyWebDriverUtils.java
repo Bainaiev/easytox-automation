@@ -61,6 +61,34 @@ public class MyWebDriverUtils {
         return null;
     }
 
+    public static WebElement findElement(WebDriver driver, final String locator, LocatorType locatorType, int time) {
+
+        final WebDriverWait webDriverWait = new WebDriverWait(driver, time);
+
+        switch (locatorType) {
+            case XPATH:
+                return webDriverWait
+                        .until(ExpectedConditions.elementToBeClickable(By.xpath(locator)));
+            case CLASS:
+                return webDriverWait
+                        .until(ExpectedConditions.elementToBeClickable(By.className(locator)));
+            case ID:
+                return webDriverWait
+                        .until(ExpectedConditions.elementToBeClickable(By.id(locator)));
+            case TAG:
+                return webDriverWait
+                        .until(ExpectedConditions.elementToBeClickable(By.tagName(locator)));
+            case NAME:
+                return webDriverWait
+                        .until(ExpectedConditions.elementToBeClickable(By.name(locator)));
+            case CSS:
+                return webDriverWait
+                        .until(ExpectedConditions.elementToBeClickable(By.cssSelector(locator)));
+
+        }
+        return null;
+    }
+
     public static WebElement findElement(WebDriver driver, final String locator, LocatorType locatorType, final WebElement el) {
         switch (locatorType) {
             case XPATH:
