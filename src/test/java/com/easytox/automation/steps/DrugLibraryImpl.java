@@ -59,8 +59,18 @@ public class DrugLibraryImpl {
     private static final String WIDGET_TESTING_PROFILE_VALUE = "Profile";
     private static final String TESTING_PROFILE_PAGE_URL = "http://bmtechsol.com:8080/easytox/profile/list";
     private static final String WIDGET_ADD_TESTING_PROFILE = "Add Profile";
+    private static final String DROP_DOWN_MENU_LOCATOR = "#form > div.modal-body > div:nth-child(2) > div > div > ul";
+    private static final String VALIDITY_DROP_DOWN = "#form > div.modal-body > div:nth-child(3) > div > div > ul";
+    private static final String TEST_SCREEN_BUTTON_LOCATOR = "#form > div.modal-body > div:nth-child(2) > div > div > button";
+    private static final String VALIDITY_TEST_GROUP_LOCATOR = "#form > div.modal-body > div:nth-child(3) > div > div > button";
+    private static final String LI = "li";
+    private static final String LABEL = "label";
+    private static final String PROFILE_TESTING_MESSAGE_ERROR = "Profile already exists";
+
 
     private static List<String> compounds;
+    private static List<String> testGroup;
+    private static List<String> validityTestGroup;
 
 
     private WebDriver driver;
@@ -75,7 +85,7 @@ public class DrugLibraryImpl {
      */
 
     @When("^Login with SNLabAdmin/Test@123 credentials$")
-    public void login(){
+    public void login() {
         MyWebDriverUtils.authorization(driver, LOGIN_PAGE_URL,
                 FIND_USERNAME, LocatorType.NAME, USER_NAME,
                 FIND_PASSWORD, LocatorType.NAME, PASSWORD,
@@ -83,35 +93,35 @@ public class DrugLibraryImpl {
     }
 
     @Then("^User login should be successful$")
-    public void check_login(){
+    public void check_login() {
         MyWebDriverUtils.checkWidgetCaption(driver, WIDGET_CASE_LIST_LOCATOR, LocatorType.CSS, WIDGET_CASE_LIST_VALUE);
         MyWebDriverUtils.checkCurrentUrl(driver, CASE_LIST_URL);
     }
 
     @When("^Go to Libraries -> Compound Library$")
-    public void go_to_compound_library(){
+    public void go_to_compound_library() {
         MyWebDriverUtils.waitContainerThenClick(driver, LIBRARY_ICON_LOCATOR, LocatorType.CSS);
         MyWebDriverUtils.waitContainerThenClick(driver, COMPOUND_LIBRARY_ICON_LOCATOR, LocatorType.CSS);
     }
 
     @Then("^Compound page should be open$")
-    public void compound_page_should_be_open(){
+    public void compound_page_should_be_open() {
         MyWebDriverUtils.checkWidgetCaption(driver, WIDGET_CASE_LIST_LOCATOR, LocatorType.CSS, WIDGET_COMPOUND_VALUE);
         MyWebDriverUtils.checkCurrentUrl(driver, COMPOUND_PAGE_URL);
     }
 
     @When("^Click 'Create Compound' icon$")
-    public void click_create_compound_icon(){
+    public void click_create_compound_icon() {
         MyWebDriverUtils.waitContainerThenClick(driver, ADD_COMPOUND_ICON, LocatorType.ID);
     }
 
     @Then("^Add Compound screen should be displayed$")
-    public void add_compound_screen_should_be_displayed(){
+    public void add_compound_screen_should_be_displayed() {
         MyWebDriverUtils.checkPageCaption(driver, WIDGET_ADD_COMPOUND_LOCATOR, LocatorType.ID, WIDGET_ADD_COMPOUND_VALUE);
     }
 
     @When("^Enter 'Name' as (\\w+\\d), 'Type' as (\\w+\\s\\w+) and enter all the other data and click Submit.$")
-    public void enter_all_data_and_click_submit(String compoundName, String type){
+    public void enter_all_data_and_click_submit(String compoundName, String type) {
         try {
             MyWebDriverUtils.enterData(driver, Compound.CLASS_LOCATOR, LocatorType.ID, Compound.CLASS);
             MyWebDriverUtils.selectOption(driver, Compound.TYPE_LOCATOR, LocatorType.ID, type);
@@ -122,7 +132,7 @@ public class DrugLibraryImpl {
             MyWebDriverUtils.enterData(driver, Compound.NEGATIVE_COMMENTS_LOCATOR, LocatorType.ID, Compound.NEGATIVE_COMMENTS);
             MyWebDriverUtils.enterData(driver, Compound.POSITIVE_COMMENTS_LOCATOR, LocatorType.ID, Compound.POSITIVE_COMMENTS);
 
-            if(compoundName.equals("Compound1") || compoundName.equals("Compound2")){
+            if (compoundName.equals("Compound1") || compoundName.equals("Compound2")) {
                 MyWebDriverUtils.enterData(driver, Compound.CUT_OFF_LOCATOR, LocatorType.ID, Compound.CUT_OFF);
             } else {
                 MyWebDriverUtils.selectOption(driver, Compound.RANGE_LOCATOR, LocatorType.ID, Compound.RANGE);
@@ -134,23 +144,23 @@ public class DrugLibraryImpl {
 
             MyWebDriverUtils.waitContainerThenClick(driver, SUBMIT_LOCATOR, LocatorType.CSS);
             MyWebDriverUtils.waitContainerThenClick(driver, SUBMIT_LOCATOR, LocatorType.CSS);
-        }catch (TimeoutException ex){
+        } catch (TimeoutException ex) {
             System.out.println("Submit button is disabled");
         }
     }
 
     @Then("^A new Compound with (\\w+\\d) and (\\w+\\s\\w+) should be created successfully$")
-    public void check_new_compound(String compoundName, String type){
-        if(checkErrorMessage(ERROR_MESSAGE, compoundName)){
+    public void check_new_compound(String compoundName, String type) {
+        if (checkErrorMessage(ERROR_MESSAGE, compoundName)) {
             return;
         }
 
-        MyWebDriverUtils.checkWidgetCaption(driver, ALERT_SUCCESS_LOCATOR, LocatorType.CSS, "Compound " + compoundName + " created" );
+        MyWebDriverUtils.checkWidgetCaption(driver, ALERT_SUCCESS_LOCATOR, LocatorType.CSS, "Compound " + compoundName + " created");
         MyWebDriverUtils.checkCurrentUrl(driver, COMPOUND_PAGE_URL);
 
         List<WebElement> cells = MyWebDriverUtils.getCells(driver, TABLE_LOCATOR, LocatorType.ID, 1, 12);
         if (cells != null && cells.size() == 12) {
-            if(compoundName.equals("Compound1") || compoundName.equals("Compound2")){
+            if (compoundName.equals("Compound1") || compoundName.equals("Compound2")) {
                 Assert.assertEquals(cells.get(4).getText(), "");
                 Assert.assertEquals(cells.get(5).getText(), Compound.CUT_OFF);
             } else {
@@ -160,7 +170,7 @@ public class DrugLibraryImpl {
 
             String[] compType = type.split(" ");
             Assert.assertEquals(cells.get(0).getText(), Compound.CLASS);
-            Assert.assertEquals(cells.get(1).getText(), compType[0]+compType[1]);
+            Assert.assertEquals(cells.get(1).getText(), compType[0] + compType[1]);
             Assert.assertEquals(cells.get(2).getText(), compoundName);
             Assert.assertEquals(cells.get(3).getText(), Compound.RESULT);
             Assert.assertEquals(cells.get(6).getText(), Compound.POSITIVE_COMMENTS);
@@ -174,16 +184,16 @@ public class DrugLibraryImpl {
 
     }
 
-    private boolean checkErrorMessage(String message, String name){
+    private boolean checkErrorMessage(String message, String name) {
         try {
             WebElement errorElement = MyWebDriverUtils.findElement(driver, COMPOUND_WARNING_LOCATOR, LocatorType.CSS, 2);
-            if(errorElement != null){
+            if (errorElement != null) {
                 Assert.assertEquals(errorElement.getAttribute(DATA_BV_RESULT_ATTRIBUTE), DATA_BV_RESULT_ATTRIBUTE_VALUE);
                 Assert.assertEquals(errorElement.getText(), message);
                 Assert.fail(name + " already exists!");
                 return true;
             }
-        } catch (TimeoutException ex){
+        } catch (TimeoutException ex) {
             System.out.println("errorElement is not visible, compound added!");
         }
         return false;
@@ -194,55 +204,55 @@ public class DrugLibraryImpl {
      */
 
     @When("^Go to Libraries -> Drug Library$")
-    public void go_to_drug_library(){
+    public void go_to_drug_library() {
         MyWebDriverUtils.waitContainerThenClick(driver, LIBRARY_ICON_LOCATOR, LocatorType.CSS);
         MyWebDriverUtils.waitContainerThenClick(driver, DRUG_LIBRARY_ICON_LOCATOR, LocatorType.CSS);
     }
 
     @Then("^Drug page should be open$")
-    public void check_drug_page(){
+    public void check_drug_page() {
         MyWebDriverUtils.checkWidgetCaption(driver, WIDGET_CASE_LIST_LOCATOR, LocatorType.CSS, WIDGET_DRUG_LIBRARY_VALUE);
         MyWebDriverUtils.checkCurrentUrl(driver, DRUG_PAGE_URL);
     }
 
     @When("^Click 'Add Drug' icon.$")
-    public void click_add_drug_icon(){
+    public void click_add_drug_icon() {
         MyWebDriverUtils.waitContainerThenClick(driver, ADD_COMPOUND_ICON, LocatorType.ID);
     }
 
     @Then("^Add Drug screen should be displayed.$")
-    public void check_add_drug_screen(){
+    public void check_add_drug_screen() {
         MyWebDriverUtils.checkPageCaption(driver, WIDGET_ADD_COMPOUND_LOCATOR, LocatorType.ID, WIDGET_ADD_DRUG_VALUE);
     }
 
     @When("^Verify the values displayed in 'Compounds' drop down.$")
-    public void verify_the_values_displayed_in_compound_drop_down(){
+    public void verify_the_values_displayed_in_compound_drop_down() {
         List<WebElement> compoundsOptions = MyWebDriverUtils.getOptions(driver, Drug.COMPOUNDS_LOCATOR, LocatorType.ID);
-        if(compounds == null){
+        if (compounds == null) {
             compounds = new ArrayList<>();
         }
-        if(compoundsOptions != null){
-            for(WebElement option: compoundsOptions){
+        if (compoundsOptions != null) {
+            for (WebElement option : compoundsOptions) {
                 compounds.add(option.getText());
             }
         }
     }
 
     @Then("^Following values should be displayed in 'Compounds' dropdown: (\\w{8}\\d), (\\w{8}\\d)$")
-    public void check_values_in_compound_drop_down(String comp1, String comp2){
-        if(compounds != null){
+    public void check_values_in_compound_drop_down(String comp1, String comp2) {
+        if (compounds != null) {
             Assert.assertTrue(compounds.contains(comp1) && compounds.contains(comp2));
         }
     }
 
     @When("^Verify the values NOT displayed in 'Compounds' drop down.$")
-    public void verify_the_values_not_displayed_in_compounds_drop_down(){
+    public void verify_the_values_not_displayed_in_compounds_drop_down() {
 
     }
 
     @Then("^Following values should NOT be displayed in 'Compounds' dropdown: (\\w{9}\\d), (\\w{9}\\d)$")
-    public void check_values_not_in_compound_drop_down(String vComp1, String vComp2){
-        if(compounds != null){
+    public void check_values_not_in_compound_drop_down(String vComp1, String vComp2) {
+        if (compounds != null) {
             Assert.assertFalse(compounds.contains(vComp1));
             Assert.assertFalse(compounds.contains(vComp2));
             compounds.clear();
@@ -255,7 +265,7 @@ public class DrugLibraryImpl {
      */
 
     @When("^Enter 'Name' as '(\\w{7}\\d)', Select '(\\w{8}\\d)' from the drop down and enter all the other data and click Submit.$")
-    public void enter_name_and_all_other_data(String name, String compound){
+    public void enter_name_and_all_other_data(String name, String compound) {
         Drug.compoundValue = compound;
         MyWebDriverUtils.enterData(driver, Drug.DRUG_NAME_LOCATOR, LocatorType.NAME, name);
         MyWebDriverUtils.selectOption(driver, Drug.ACCESS_PREFIX_LOCATOR, LocatorType.NAME, Drug.ACCESS_PREFIX_VALUE);
@@ -265,12 +275,12 @@ public class DrugLibraryImpl {
     }
 
     @Then("^A new Drug '(\\w{7}\\d)' should be created successfully$")
-    public void check_a_new_drug(String name){
-        if(checkErrorMessage(DRUG_ERROR_MESSAGE, name)){
+    public void check_a_new_drug(String name) {
+        if (checkErrorMessage(DRUG_ERROR_MESSAGE, name)) {
             return;
         }
 
-        MyWebDriverUtils.checkWidgetCaption(driver, ALERT_SUCCESS_LOCATOR, LocatorType.CSS, "Drug " + name + " created" );
+        MyWebDriverUtils.checkWidgetCaption(driver, ALERT_SUCCESS_LOCATOR, LocatorType.CSS, "Drug " + name + " created");
         MyWebDriverUtils.checkCurrentUrl(driver, DRUG_PAGE_URL);
 
         List<WebElement> cells = MyWebDriverUtils.getCells(driver, TABLE_LOCATOR, LocatorType.ID, 1, 4);
@@ -289,24 +299,24 @@ public class DrugLibraryImpl {
      */
 
     @When("^Go to Libraries -> Compound Test Group$")
-    public void go_to_compound_test_group(){
+    public void go_to_compound_test_group() {
         MyWebDriverUtils.waitContainerThenClick(driver, LIBRARY_ICON_LOCATOR, LocatorType.CSS);
         MyWebDriverUtils.waitContainerThenClick(driver, COMPOUND_TEST_GROUP_ICON_LOCATOR, LocatorType.CSS);
     }
 
     @Then("^Test Code page should be open$")
-    public void check_test_code_page(){
-        MyWebDriverUtils.checkWidgetCaption(driver, WIDGET_CASE_LIST_LOCATOR, LocatorType.CSS, WIDGET_TEST_CODE_VALUE );
+    public void check_test_code_page() {
+        MyWebDriverUtils.checkWidgetCaption(driver, WIDGET_CASE_LIST_LOCATOR, LocatorType.CSS, WIDGET_TEST_CODE_VALUE);
         MyWebDriverUtils.checkCurrentUrl(driver, TEST_CODE_PAGE_URL);
     }
 
     @When("^Click 'Add Test Code' icon.$")
-    public void click_add_test_code(){
+    public void click_add_test_code() {
         MyWebDriverUtils.waitContainerThenClick(driver, ADD_COMPOUND_ICON, LocatorType.ID);
     }
 
     @Then("^Add Test Code screen should be displayed.$")
-    public void check_add_test_code_screen(){
+    public void check_add_test_code_screen() {
         MyWebDriverUtils.checkPageCaption(driver, WIDGET_ADD_COMPOUND_LOCATOR, LocatorType.ID, WIDGET_ADD_TEST_CODE);
     }
 
@@ -315,7 +325,7 @@ public class DrugLibraryImpl {
      */
 
     @When("^Enter 'Test Code' as '(\\w{3}\\s\\w{11})', Select '(\\w{9})' and '(\\w{9})' from the Compounds drop down and enter all the other data and click Submit.$")
-    public void enter_test_code_and_all_other_data_and_click_submit(String testCode, String comp1, String comp2){
+    public void enter_test_code_and_all_other_data_and_click_submit(String testCode, String comp1, String comp2) {
         TestCode.compValue1 = comp1;
         TestCode.compValue2 = comp2;
         MyWebDriverUtils.enterData(driver, TestCode.TEST_CODE_LOCATOR, LocatorType.ID, testCode);
@@ -327,16 +337,16 @@ public class DrugLibraryImpl {
     }
 
     @Then("^A new Compound '(\\w{3}\\s\\w{11})' should be created successfully.$")
-    public void check_a_new_compound(String testCode){
+    public void check_a_new_compound(String testCode) {
         check_compound(testCode, TEST_CODE_PAGE_URL);
     }
 
-    private void check_compound(String testCode, String url){
-        if(checkErrorMessage(TEST_CODE_ERROR_MESSAGE, testCode)){
+    private void check_compound(String testCode, String url) {
+        if (checkErrorMessage(TEST_CODE_ERROR_MESSAGE, testCode)) {
             return;
         }
 
-        MyWebDriverUtils.checkWidgetCaption(driver, ALERT_SUCCESS_LOCATOR, LocatorType.CSS, "TestCode " + testCode + " created" );
+        MyWebDriverUtils.checkWidgetCaption(driver, ALERT_SUCCESS_LOCATOR, LocatorType.CSS, "TestCode " + testCode + " created");
         MyWebDriverUtils.checkCurrentUrl(driver, url);
 
         while (true) {
@@ -353,7 +363,7 @@ public class DrugLibraryImpl {
                 } else {
                     Assert.fail("cells is null");
                 }
-            }catch (StaleElementReferenceException ex){
+            } catch (StaleElementReferenceException ex) {
                 System.out.println("element is not attached to the page document");
             }
         }
@@ -364,37 +374,37 @@ public class DrugLibraryImpl {
      */
 
     @When("^Go to Libraries -> Validity Test Group$")
-    public void go_to_validity_test_group(){
+    public void go_to_validity_test_group() {
         MyWebDriverUtils.waitContainerThenClick(driver, LIBRARY_ICON_LOCATOR, LocatorType.CSS);
         MyWebDriverUtils.waitContainerThenClick(driver, VALIDITY_TEST_GROUP_ICON_LOCATOR, LocatorType.CSS);
     }
 
     @Then("^Validity Test Code page should be open$")
-    public void check_validity_test_code_page(){
-        MyWebDriverUtils.checkWidgetCaption(driver, WIDGET_CASE_LIST_LOCATOR, LocatorType.CSS, WIDGET_VALIDITY_TEST_CODE_VALUE );
+    public void check_validity_test_code_page() {
+        MyWebDriverUtils.checkWidgetCaption(driver, WIDGET_CASE_LIST_LOCATOR, LocatorType.CSS, WIDGET_VALIDITY_TEST_CODE_VALUE);
         MyWebDriverUtils.checkCurrentUrl(driver, VALIDITY_TEST_CODE_PAGE_URL);
     }
 
     @When("^Click 'Add Validity Test Code' icon.$")
-    public void click_add_validity_test_code_icon(){
+    public void click_add_validity_test_code_icon() {
         MyWebDriverUtils.waitContainerThenClick(driver, ADD_COMPOUND_ICON, LocatorType.ID);
     }
 
     @Then("^Add Validity Test Code screen should be displayed.$")
-    public void check_add_validity_test_code_screen(){
+    public void check_add_validity_test_code_screen() {
         MyWebDriverUtils.checkPageCaption(driver, WIDGET_ADD_COMPOUND_LOCATOR, LocatorType.ID, WIDGET_ADD_VALIDITY_TEST_CODE);
     }
 
     @Then("^Following values should be displayed in 'Compounds' dropdown: (\\w{9}\\d), (\\w{9}\\d)$")
-    public void check_compounds_drop_down(String vComp1, String vComp2){
-        if(compounds != null){
+    public void check_compounds_drop_down(String vComp1, String vComp2) {
+        if (compounds != null) {
             Assert.assertTrue(compounds.contains(vComp1) && compounds.contains(vComp2));
         }
     }
 
     @Then("^Following values should NOT be displayed in 'Compounds' dropdown: (\\w{8}\\d), (\\w{8}\\d)$")
-    public void check_values_which_should_not_be_displayed(String comp1, String comp2){
-        if(compounds != null){
+    public void check_values_which_should_not_be_displayed(String comp1, String comp2) {
+        if (compounds != null) {
             Assert.assertFalse(compounds.contains(comp1));
             Assert.assertFalse(compounds.contains(comp2));
             compounds.clear();
@@ -406,12 +416,12 @@ public class DrugLibraryImpl {
      */
 
     @When("^Enter 'ValidityTest Code' as '(\\w{3}\\s\\w{10})', Select '(\\w{9}\\d)' and '(\\w{9}\\d)' from the Compounds drop down and enter all the other data and click Submit.$")
-    public void enter_validity_test_code_and_all_other_data(String valTestCode, String vComp1, String vComp2){
+    public void enter_validity_test_code_and_all_other_data(String valTestCode, String vComp1, String vComp2) {
         enter_test_code_and_all_other_data_and_click_submit(valTestCode, vComp1, vComp2);
     }
 
     @Then("^A new Compound '(\\w{3}\\s\\w{10})' should be created successfully$")
-    public void a_new_compound_should_be_created_successfully(String valTestCode){
+    public void a_new_compound_should_be_created_successfully(String valTestCode) {
         check_compound(valTestCode, VALIDITY_TEST_CODE_PAGE_URL);
     }
 
@@ -420,76 +430,211 @@ public class DrugLibraryImpl {
      */
 
     @When("^Go to Libraries -> Testing Profile$")
-    public void go_to_testing_profile(){
+    public void go_to_testing_profile() {
         MyWebDriverUtils.waitContainerThenClick(driver, LIBRARY_ICON_LOCATOR, LocatorType.CSS);
         MyWebDriverUtils.waitContainerThenClick(driver, TESTING_PROFILE_ICON_LOCATOR, LocatorType.CSS);
     }
 
     @Then("^Profile page should be open$")
-    public void check_profile_page(){
-        MyWebDriverUtils.checkWidgetCaption(driver, WIDGET_CASE_LIST_LOCATOR, LocatorType.CSS, WIDGET_TESTING_PROFILE_VALUE );
+    public void check_profile_page() {
+        MyWebDriverUtils.checkWidgetCaption(driver, WIDGET_CASE_LIST_LOCATOR, LocatorType.CSS, WIDGET_TESTING_PROFILE_VALUE);
         MyWebDriverUtils.checkCurrentUrl(driver, TESTING_PROFILE_PAGE_URL);
     }
 
     @When("^Click 'Add Profile' icon.$")
-    public void click_add_profile_icon(){
+    public void click_add_profile_icon() {
         MyWebDriverUtils.waitContainerThenClick(driver, ADD_COMPOUND_ICON, LocatorType.ID);
     }
 
     @Then("^Add Profile screen should be displayed.$")
-    public void check_add_profile_screen(){
+    public void check_add_profile_screen() {
         MyWebDriverUtils.checkPageCaption(driver, WIDGET_ADD_COMPOUND_LOCATOR, LocatorType.ID, WIDGET_ADD_TESTING_PROFILE);
     }
 
     @When("^Verify the values displayed in 'TestScreen Group' drop down.$")
-    public void verify_the_values_displayed_in_test_screen_groep_drop_down(){
-      //  List<WebElement> compoundsOptions = MyWebDriverUtils.getOptions(driver, ProfileTesting.TEST_SCREEN_GROUP_LOCATOR, LocatorType.ID);
-//        WebElement select = MyWebDriverUtils.findVisibilityElement(driver, ProfileTesting.TEST_SCREEN_GROUP_LOCATOR, LocatorType.ID);
-//        if (select != null) {
-//
-//            List<WebElement> compoundsOptions =  MyWebDriverUtils.findElements(driver, "option", LocatorType.TAG, select);
-//            if(compounds == null){
-//                compounds = new ArrayList<>();
-//            }
-//            if(compoundsOptions != null){
-//                for(WebElement option: compoundsOptions){
-//                    System.out.println(option.getText());
-//                    compounds.add(option.getText());
-//                }
-//            }
-//
-//        } else {
-//            Assert.fail("element is null!");
-//        }
+    public void verify_the_values_displayed_in_test_screen_group_drop_down() {
+        if (testGroup == null) {
+            testGroup = new ArrayList<>();
+        }
+        MyWebDriverUtils.waitContainerThenClick(driver, TEST_SCREEN_BUTTON_LOCATOR, LocatorType.CSS);
+        WebElement dropDown = MyWebDriverUtils.findPresenceElement(driver, DROP_DOWN_MENU_LOCATOR, LocatorType.CSS);
+        if (dropDown != null) {
+            List<WebElement> list = MyWebDriverUtils.findElements(driver, LI, LocatorType.TAG, dropDown);
+            if (list != null) {
 
-
+                for (int i = 2; i < list.size(); i++) {
+                    WebElement child = MyWebDriverUtils.findElement(driver, LABEL, LocatorType.TAG, list.get(i));
+                    if (child != null) {
+                        String text = child.getText().split(" , ")[0];
+                        testGroup.add(text);
+                    }
+                }
+            }
+        }
+        MyWebDriverUtils.waitContainerThenClick(driver, TEST_SCREEN_BUTTON_LOCATOR, LocatorType.CSS);
     }
 
     @Then("^Following values should be displayed in 'TestScreen Group' dropdown: (\\w{3}\\s\\w{11})$")
-    public void check_values_in_test_screen_group_drop_down(String value){
-//        for(String text: compounds){
-//            System.out.println(text);
-//        }
+    public void check_values_in_test_screen_group_drop_down(String value) {
+        Assert.assertTrue(testGroup.contains(value));
+    }
+
+    @When("^Verify the values NOT displayed in 'TestScreen Group' drop down.$")
+    public void verify_the_values_displayed_not_in_test_screen_group_drop_down() {
+        if (testGroup == null) {
+            verify_the_values_displayed_in_test_screen_group_drop_down();
+        }
+    }
+
+    @Then("^Following values should NOT be displayed in 'TestScreen Group' dropdown: (\\w{3}\\s\\w{10})$")
+    public void check_values_not_in_test_screen_grop_down_list(String value) {
+        Assert.assertFalse(testGroup.contains(value));
+    }
+
+    @When("^Verify the values displayed in 'Validity Test Group' drop down.$")
+    public void verify_the_values_displayed_in_validity_test_group_drop_down() {
+        if (validityTestGroup == null) {
+            validityTestGroup = new ArrayList<>();
+        }
+        MyWebDriverUtils.waitContainerThenClick(driver, VALIDITY_TEST_GROUP_LOCATOR, LocatorType.CSS);
+        WebElement dropDown = MyWebDriverUtils.findPresenceElement(driver, VALIDITY_DROP_DOWN, LocatorType.CSS);
+        if (dropDown != null) {
+            List<WebElement> list = MyWebDriverUtils.findElements(driver, LI, LocatorType.TAG, dropDown);
+            if (list != null) {
+
+                for (int i = 2; i < list.size(); i++) {
+                    WebElement child = MyWebDriverUtils.findElement(driver, LABEL, LocatorType.TAG, list.get(i));
+                    if (child != null) {
+                        String text = child.getText().split(" , ")[0];
+                        validityTestGroup.add(text);
+                    }
+                }
+            }
+        }
+        MyWebDriverUtils.waitContainerThenClick(driver, VALIDITY_TEST_GROUP_LOCATOR, LocatorType.CSS);
+    }
+
+    @Then("^Following values should be displayed in 'Validity Test Group' dropdown: (\\w{3}\\s\\w{10})$")
+    public void check_values_in_validity_test_group_drop_down(String value) {
+        Assert.assertTrue(validityTestGroup.contains(value));
+    }
+
+    @When("^Verify the values NOT displayed in 'Validity Test Group' drop down.$")
+    public void verify_the_values_not_displayed_in_validity_drop_down() {
+        if (validityTestGroup == null) {
+            verify_the_values_displayed_in_validity_test_group_drop_down();
+        }
+    }
+
+    @Then("^Following values should NOT be displayed in 'TestScreen Group' dropdown: (\\w{3}\\s\\w{11})$")
+    public void check_values_not_in_validity_drop_down(String value) {
+        Assert.assertFalse(validityTestGroup.contains(value));
+    }
+
+    /*
+    Scenario: Create a Testing Profile
+     */
+
+    @When("^Enter 'Name' as '(\\w{11}\\d{1})', 'Test Screen Group' as '(\\w{3}\\s\\w{11})', 'Validity Test Group' as '(\\w{3}\\s\\w{10})', and click Submit.$")
+    public void enter_all_data(String name, String testScreen, String validity) {
+        ProfileTesting.name = name;
+        ProfileTesting.testScreen = testScreen;
+        ProfileTesting.validityTestGroup = validity;
+        MyWebDriverUtils.enterData(driver, ProfileTesting.PROFILE_NAME, LocatorType.ID, ProfileTesting.name);
+
+        MyWebDriverUtils.waitContainerThenClick(driver, TEST_SCREEN_BUTTON_LOCATOR, LocatorType.CSS);
+        WebElement dropDown = MyWebDriverUtils.findPresenceElement(driver, DROP_DOWN_MENU_LOCATOR, LocatorType.CSS);
+        if (dropDown != null) {
+            List<WebElement> list = MyWebDriverUtils.findElements(driver, LI, LocatorType.TAG, dropDown);
+            if (list != null) {
+
+                for (int i = 2; i < list.size(); i++) {
+                    WebElement child = MyWebDriverUtils.findElement(driver, LABEL, LocatorType.TAG, list.get(i));
+                    if (child != null) {
+                        String text = child.getText().split(" , ")[0];
+                        if (text.equals(testScreen)) {
+                            child.click();
+                        }
+                    }
+                }
+            }
+        }
+        MyWebDriverUtils.waitContainerThenClick(driver, TEST_SCREEN_BUTTON_LOCATOR, LocatorType.CSS);
+
+        MyWebDriverUtils.waitContainerThenClick(driver, VALIDITY_TEST_GROUP_LOCATOR, LocatorType.CSS);
+        WebElement dropD = MyWebDriverUtils.findPresenceElement(driver, VALIDITY_DROP_DOWN, LocatorType.CSS);
+        if (dropD != null) {
+            List<WebElement> list = MyWebDriverUtils.findElements(driver, LI, LocatorType.TAG, dropD);
+            if (list != null) {
+
+                for (int i = 2; i < list.size(); i++) {
+                    WebElement child = MyWebDriverUtils.findElement(driver, LABEL, LocatorType.TAG, list.get(i));
+                    if (child != null) {
+                        String text = child.getText().split(" , ")[0];
+                        if (text.equals(validity)) {
+                            child.click();
+                        }
+                    }
+                }
+            }
+        }
+        MyWebDriverUtils.waitContainerThenClick(driver, VALIDITY_TEST_GROUP_LOCATOR, LocatorType.CSS);
+
+        try {
+            MyWebDriverUtils.waitContainerThenClick(driver, SUBMIT_LOCATOR, LocatorType.CSS);
+        } catch (TimeoutException ex) {
+            System.out.println("Submit button is disabled");
+        }
+
+
+    }
+
+    @Then("^A new Test Profile should be created successfully$")
+    public void check_a_new_test_profile() {
+        if (checkErrorMessage(PROFILE_TESTING_MESSAGE_ERROR, ProfileTesting.name)) {
+            return;
+        }
+        MyWebDriverUtils.checkWidgetCaption(driver, ALERT_SUCCESS_LOCATOR, LocatorType.CSS, "Profile " + ProfileTesting.name + " created");
+        MyWebDriverUtils.checkCurrentUrl(driver, TESTING_PROFILE_PAGE_URL);
+
+        while (true) {
+            try {
+                List<WebElement> cells = MyWebDriverUtils.getCells(driver, TABLE_LOCATOR, LocatorType.ID, 1, 4);
+                if (cells != null && cells.size() == 4) {
+                    Assert.assertEquals(cells.get(0).getText(), ProfileTesting.name);
+                    Assert.assertEquals(cells.get(1).getText(), ProfileTesting.testScreen);
+                    Assert.assertEquals(cells.get(2).getText(), ProfileTesting.validityTestGroup);
+                    break;
+
+                } else {
+                    Assert.fail("cells is null");
+                }
+            } catch (StaleElementReferenceException ex) {
+                System.out.println("element is not attached to the page document");
+            }
+        }
+
+
     }
 
 
-
-    private static final class Compound{
-        private Compound(){}
+    private static final class Compound {
+        private Compound() {
+        }
 
         private static final String NAME_LOCATOR = "name";
         private static final String CLASS_LOCATOR = "classtype";
-        private static final String TYPE_LOCATOR  = "type";
+        private static final String TYPE_LOCATOR = "type";
         private static final String RANGE_LOCATOR = "rangetype";
         private static final String CUT_OFF_RANGE_LOCATOR = "cutoffrange";
         private static final String UNITS_LOCATOR = "units";
         private static final String CUT_OFF_LOCATOR = "cutoff";
-        private static final String RESULT_LOCATOR  = "result";
-        private static final String BILLING_CODE_LOCATOR  = "billingCode";
-        private static final String ORAL_DETECTION_LOCATOR  = "detectionOral";
-        private static final String URINE_DETECTION_LOCATOR  = "detectionUrine";
-        private static final String NEGATIVE_COMMENTS_LOCATOR  = "negativeComments";
-        private static final String POSITIVE_COMMENTS_LOCATOR  = "positiveComments";
+        private static final String RESULT_LOCATOR = "result";
+        private static final String BILLING_CODE_LOCATOR = "billingCode";
+        private static final String ORAL_DETECTION_LOCATOR = "detectionOral";
+        private static final String URINE_DETECTION_LOCATOR = "detectionUrine";
+        private static final String NEGATIVE_COMMENTS_LOCATOR = "negativeComments";
+        private static final String POSITIVE_COMMENTS_LOCATOR = "positiveComments";
 
         private static final String CLASS = "Class";
 
@@ -505,8 +650,9 @@ public class DrugLibraryImpl {
         private static final String POSITIVE_COMMENTS = "Positive comments";
     }
 
-    private static final class Drug{
-        private Drug(){}
+    private static final class Drug {
+        private Drug() {
+        }
 
         private static String compoundValue;
 
@@ -517,8 +663,9 @@ public class DrugLibraryImpl {
         private static final String ACCESS_PREFIX_VALUE = "Oral";
     }
 
-    private static final class TestCode{
-        private TestCode(){}
+    private static final class TestCode {
+        private TestCode() {
+        }
 
         private static String compValue1;
         private static String compValue2;
@@ -530,8 +677,13 @@ public class DrugLibraryImpl {
         private static final String DESCRIPTION = "description";
     }
 
-    private static final class ProfileTesting{
-        private ProfileTesting(){}
+    private static final class ProfileTesting {
+        private ProfileTesting() {
+        }
+
+        private static String name;
+        private static String testScreen;
+        private static String validityTestGroup;
 
         private static final String TEST_SCREEN_GROUP_LOCATOR = "testcodes1"; // id
         private static final String PROFILE_NAME = "profileName"; //id, name

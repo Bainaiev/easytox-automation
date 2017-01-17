@@ -145,7 +145,7 @@ Feature: Drug Library
     When Enter 'ValidityTest Code' as 'New ValTestGrp', Select 'VCompound1' and 'VCompound2' from the Compounds drop down and enter all the other data and click Submit.
     Then A new Compound 'New ValTestGrp' should be created successfully
 
-################ 10
+############### 10
   Scenario: Validating Testing Profile
     When Login with SNLabAdmin/Test@123 credentials
     Then User login should be successful
@@ -158,15 +158,29 @@ Feature: Drug Library
 
     When Verify the values displayed in 'TestScreen Group' drop down.
     Then Following values should be displayed in 'TestScreen Group' dropdown: New CompTestGrp
-#
-#    When Verify the values NOT displayed in 'TestScreen Group' drop down.
-#    Then Following values should NOT be displayed in 'TestScreen Group' dropdown: New ValTestGrp
-#
-#    When Verify the values displayed in 'Validity Test Group' drop down.
-#    Then Following values should be displayed in 'Validity Test Group' dropdown: New ValTestGrp
-#
-#    When Verify the values NOT displayed in 'Validity Test Group' drop down.
-#    Then Following values should NOT be displayed in 'TestScreen Group' dropdown: New CompTestGrp
+
+    When Verify the values NOT displayed in 'TestScreen Group' drop down.
+    Then Following values should NOT be displayed in 'TestScreen Group' dropdown: New ValTestGrp
+
+    When Verify the values displayed in 'Validity Test Group' drop down.
+    Then Following values should be displayed in 'Validity Test Group' dropdown: New ValTestGrp
+
+    When Verify the values NOT displayed in 'Validity Test Group' drop down.
+    Then Following values should NOT be displayed in 'TestScreen Group' dropdown: New CompTestGrp
+
+################ 11
+  Scenario: Create a Testing Profile
+    When Login with SNLabAdmin/Test@123 credentials
+    Then User login should be successful
+
+    When Go to Libraries -> Testing Profile
+    Then Profile page should be open
+
+    When Click 'Add Profile' icon.
+    Then Add Profile screen should be displayed.
+
+    When Enter 'Name' as 'TestProfile1', 'Test Screen Group' as 'New CompTestGrp', 'Validity Test Group' as 'New ValTestGrp', and click Submit.
+    Then A new Test Profile should be created successfully
 
 
 
