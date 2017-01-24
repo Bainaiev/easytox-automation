@@ -4,13 +4,15 @@ import com.easytox.automation.driver.DriverBase;
 import com.easytox.automation.utils.LocatorType;
 import com.easytox.automation.utils.MyWebDriverUtils;
 import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When
+import cucumber.api.java.en.When;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-
 import java.io.File;
 import java.util.List;
+
 
 /**
  * Created by Alexander on 19.01.2017.
@@ -52,6 +54,14 @@ public class LabSettingsImpl {
     private static final String NEW_CONTACTS_COUNT = "newcontactscount";
 
     private static final String UPDATE_BUTTON = "#settingsform > div:nth-child(14) > div > button";
+    private static final String LOGO_LOCATOR = "logoExists";
+    private static final String IMAGE_LOCATOR = "#settingsform > div:nth-child(3) > div:nth-child(3) > img";
+    private static final String SRC = "src";
+    private static final String SRC_VALUE = "http://bmtechsol.com:8080/easytox/lab/viewLogo";
+    private static final String TRUE = "true";
+    private static final String PIN_LOCATOR = "#settingsform > div:nth-child(4) > div:nth-child(3)";
+    private static final String PIN_VALUE = "1234";
+    private static final String STANDARD_REPORT = "//*[@id=\"reportTemplate\"]/div[1]/div/label/input";
 
 
     private static List<WebElement> listTemplate;
@@ -112,15 +122,23 @@ public class LabSettingsImpl {
         }
     }
 
-    // TODO: 19.01.2017 check logo view
+
     @When("^Verify that the logo in the file should be displayed beside 'Lab Logo' input box.$")
     public void verify_logo() {
-
+        WebElement el = MyWebDriverUtils.findPresenceElement(driver, LOGO_LOCATOR, LocatorType.NAME);
+        if (el != null) {
+            Assert.assertEquals(el.getAttribute(ATTRIBUTE), TRUE);
+        }
     }
 
     @Then("^Uploaded logo should be displayed beside 'Lab Logo' input box.$")
     public void uploaded_logo_should_be_displayed_beside() {
-
+        WebElement logo = MyWebDriverUtils.findPresenceElement(driver, IMAGE_LOCATOR, LocatorType.CSS);
+        if (logo != null) {
+            Assert.assertEquals(logo.getAttribute(SRC), SRC_VALUE);
+            Assert.assertTrue(logo.getSize().getHeight() > 10);
+            Assert.assertTrue(logo.getSize().getWidth() > 10);
+        }
     }
 
     @When("^Enter Email Pin$")
@@ -141,16 +159,24 @@ public class LabSettingsImpl {
         }
     }
 
-    // TODO: 19.01.2017  check pin number
-
     @When("^Verify that entered Email Pin is displayed beside 'Email Pin' input box.$")
     public void verify_that_entered_email_pin_is_displayed_beside() {
-
+        WebElement pin = MyWebDriverUtils.findVisibilityElement(driver, PIN_LOCATOR, LocatorType.CSS);
+        if (pin != null) {
+            Assert.assertTrue(!pin.getText().equals(""));
+        } else {
+            Assert.fail("email pin is not displayed");
+        }
     }
 
     @Then("^Entered Pin number should be displayed beside 'Email Pin' input box.$")
     public void check_entered_pin_number() {
-
+        WebElement pin = MyWebDriverUtils.findVisibilityElement(driver, PIN_LOCATOR, LocatorType.CSS);
+        if (pin != null) {
+            Assert.assertEquals(pin.getText(), PIN_VALUE);
+        } else {
+            Assert.fail("email pin is not displayed");
+        }
     }
 
     @When("^Enter a number in CLIA field.$")
@@ -218,10 +244,14 @@ public class LabSettingsImpl {
         }
     }
 
-    // TODO: 20.01.2017
     @Then("^User should be able to select desired report template.$")
     public void check_select_desired_report_template() {
-
+        WebElement report = MyWebDriverUtils.findPresenceElement(driver, STANDARD_REPORT, LocatorType.XPATH);
+        if (report != null) {
+            Assert.assertTrue(report.isSelected());
+        } else {
+            Assert.fail("report is null!");
+        }
     }
 
     @When("^Click Update$")
@@ -274,7 +304,7 @@ public class LabSettingsImpl {
         checkValidData(Contact.CONTACT_PHONE_HELP_BLOCK_2);
     }
 
-    private void checkValidData(String locator){
+    private void checkValidData(String locator) {
         WebElement helpBlock = MyWebDriverUtils.findPresenceElement(driver, locator, LocatorType.CSS);
         if (helpBlock != null) {
             Assert.assertEquals(helpBlock.getAttribute(HELP_BLOCK_ATTRIBUTE), HELP_BLOCK_SUCCESS_VALUE);
@@ -282,7 +312,7 @@ public class LabSettingsImpl {
     }
 
     @When("^Click Update.$")
-    public void click_update_button(){
+    public void click_update_button() {
         MyWebDriverUtils.waitContainerThenClick(driver, UPDATE_BUTTON, LocatorType.CSS);
     }
 
@@ -297,42 +327,68 @@ public class LabSettingsImpl {
      */
 
     @When("^Make a note of lab logo.$")
-    public void make_a_note_of_lab_logo(){
-
+    public void make_a_note_of_lab_logo() {
+        verify_logo();
     }
 
     @Then("^Lab logo should be remembered.$")
-    public void lab_logo_should_be_remembered(){
-
+    public void lab_logo_should_be_remembered() {
+        uploaded_logo_should_be_displayed_beside();
     }
 
     @When("^Go to Case List$")
-    public void go_to_case_list(){
-
+    public void go_to_case_list() {
+        driver.get(CASE_LIST_URL);
     }
 
     @Then("^Case List screen should be displayed.$")
-    public void case_list_screen_should_be_displayed(){
-
+    public void case_list_screen_should_be_displayed() {
+        MyWebDriverUtils.checkWidgetCaption(driver, WIDGET_CASE_LIST_LOCATOR, LocatorType.CSS, WIDGET_CASE_LIST_VALUE);
+        MyWebDriverUtils.checkCurrentUrl(driver, CASE_LIST_URL);
     }
 
     @When("^Select a report by clicking on PDF icon against any existing case.$")
-    public void select_report_by_clicking_on_pdf_icon(){
+    public void select_report_by_clicking_on_pdf_icon() {
+        MyWebDriverUtils.selectOption(driver, "caseorder_length", LocatorType.NAME, "All");
+
+        WebElement table = MyWebDriverUtils.findElement(driver, "caseorder", LocatorType.ID);
+        if(table != null){
+            List<WebElement> lst = MyWebDriverUtils.findElements(driver, "tr", LocatorType.TAG, table);
+            if(lst != null){
+                for(int i = 1; i < lst.size(); i++){
+                    WebElement el = MyWebDriverUtils.findElement(driver, "#caseorder > tbody > tr:nth-child(" + i + ") > td:nth-child(9)", LocatorType.CSS);
+                    if(el != null){
+                        try {
+                            WebElement form = el.findElement(By.tagName("form"));
+                            MyWebDriverUtils.waitContainerThenClick(driver, form);
+                            break;
+                        } catch (NoSuchElementException ex){
+                            System.out.println("No report in this case!");
+                        }
+                    }
+
+                }
+            }
+        }
+
 
     }
 
     @Then("^Report should be opened successfully.$")
-    public void report_should_be_opened_successfully(){
-
+    public void report_should_be_opened_successfully() throws InterruptedException {
+        Thread.sleep(2000);
+        File f = new File("C:\\Users\\Alexander\\Downloads\\UC201602040013.PDF");
+        Assert.assertTrue(f.exists());
     }
 
     @When("^Verify the lab logo on the top left of the report.$")
-    public void verify_the_lab_logo(){
+    public void verify_the_lab_logo() {
 
     }
 
+    // TODO: 24.01.2017
     @Then("^Lab Logo should be displayed same as the logo noted in Step 3 above.$")
-    public void check_lab_logo(){
+    public void check_lab_logo() {
 
     }
 

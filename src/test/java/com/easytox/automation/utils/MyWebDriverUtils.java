@@ -305,6 +305,21 @@ public class MyWebDriverUtils {
         }
     }
 
+    public static void waitContainerThenClick(WebDriver driver, WebElement element) {
+        WebDriverWait wait = new WebDriverWait(driver, TIME_OUT_IN_SECONDS);
+
+        boolean flag = waitInvisibilityOfElement(wait, CONTAINER_LOCATOR, LocatorType.ID);
+        if (flag) {
+            if (element != null) {
+                element.click();
+            } else {
+                Assert.fail("element is null!");
+            }
+        } else {
+            Assert.fail("flag is false!");
+        }
+    }
+
     public static void waitContainerThenClick(WebDriver driver, String locator, LocatorType type, String contLocator, LocatorType locatorType){
         WebElement element = findElement(driver, locator, type);
         WebDriverWait wait = new WebDriverWait(driver, TIME_OUT_IN_SECONDS);

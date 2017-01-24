@@ -38,7 +38,7 @@ Feature: Lab Settings
     When Click Update
     Then Lab Setting should be saved successfully.
 
-############## 2
+############### 2
   Scenario: Add Contact to Lab Settings
     When Login to Easytox using credentials cgilabadmin/Welcome@123
     Then User login should be successful.
@@ -55,7 +55,7 @@ Feature: Lab Settings
     When Click Update.
     Then Contact information should be saved successfully.
 
-############## 3
+############### 3
   Scenario: Verify Lab Logo in the report.
     When Login to Easytox using credentials cgilabadmin/Welcome@123
     Then User login should be successful.
