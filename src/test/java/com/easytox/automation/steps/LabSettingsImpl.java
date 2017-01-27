@@ -3,14 +3,18 @@ package com.easytox.automation.steps;
 import com.easytox.automation.driver.DriverBase;
 import com.easytox.automation.utils.LocatorType;
 import com.easytox.automation.utils.MyWebDriverUtils;
+
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-import java.io.File;
+
+
+import java.io.*;
 import java.util.List;
 
 
@@ -352,17 +356,17 @@ public class LabSettingsImpl {
         MyWebDriverUtils.selectOption(driver, "caseorder_length", LocatorType.NAME, "All");
 
         WebElement table = MyWebDriverUtils.findElement(driver, "caseorder", LocatorType.ID);
-        if(table != null){
+        if (table != null) {
             List<WebElement> lst = MyWebDriverUtils.findElements(driver, "tr", LocatorType.TAG, table);
-            if(lst != null){
-                for(int i = 1; i < lst.size(); i++){
+            if (lst != null) {
+                for (int i = 1; i < lst.size(); i++) {
                     WebElement el = MyWebDriverUtils.findElement(driver, "#caseorder > tbody > tr:nth-child(" + i + ") > td:nth-child(9)", LocatorType.CSS);
-                    if(el != null){
+                    if (el != null) {
                         try {
                             WebElement form = el.findElement(By.tagName("form"));
                             MyWebDriverUtils.waitContainerThenClick(driver, form);
                             break;
-                        } catch (NoSuchElementException ex){
+                        } catch (NoSuchElementException ex) {
                             System.out.println("No report in this case!");
                         }
                     }
@@ -379,11 +383,12 @@ public class LabSettingsImpl {
         Thread.sleep(2000);
         File f = new File("C:\\Users\\Alexander\\Downloads\\UC201602040013.PDF");
         Assert.assertTrue(f.exists());
+
+        driver.get("file:///C:/Users/Alexander/Downloads/UC201602040013.PDF");
     }
 
     @When("^Verify the lab logo on the top left of the report.$")
-    public void verify_the_lab_logo() {
-
+    public void verify_the_lab_logo() throws IOException {
     }
 
     // TODO: 24.01.2017
