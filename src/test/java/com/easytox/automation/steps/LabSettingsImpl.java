@@ -7,6 +7,13 @@ import com.easytox.automation.utils.MyWebDriverUtils;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
+import org.apache.pdfbox.cos.COSName;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDResources;
+import org.apache.pdfbox.pdmodel.graphics.PDXObject;
+import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
@@ -14,7 +21,11 @@ import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -389,12 +400,78 @@ public class LabSettingsImpl {
 
     @When("^Verify the lab logo on the top left of the report.$")
     public void verify_the_lab_logo() throws IOException {
+
+        /*
+        extracting images from downloaded pdf file
+         */
+        File file = new File("C:\\Users\\Alexander\\Downloads\\UC201602040013.pdf");
+        PDDocument document = PDDocument.load(file);
+
+        List<BufferedImage> list =  getImagesFromPDF(document);
+        ImageIO.write(list.get(1), "JPEG", new File("C:\\Users\\Alexander\\Desktop\\myPDFs\\logo1.jpg"));
+
+        document.close();
+
     }
 
-    // TODO: 24.01.2017
     @Then("^Lab Logo should be displayed same as the logo noted in Step 3 above.$")
-    public void check_lab_logo() {
+    public void check_lab_logo() throws IOException {
+        /*
+        verify two images
+         */
+        File downloadedLogo = new File("C:\\Users\\Alexander\\Desktop\\myPDFs\\logo1.jpg");
+        File logo = new File("C:\\Users\\Alexander\\Desktop\\myPDFs\\media-lab.jpg");
 
+        BufferedImage bufferfileInput = ImageIO.read(downloadedLogo);
+        DataBuffer datafileInput = bufferfileInput.getData().getDataBuffer();
+        int sizefileInput = datafileInput.getSize();
+        System.out.println(sizefileInput);
+
+        BufferedImage bufferfileOutPut = ImageIO.read(logo);
+        DataBuffer datafileOutPut = bufferfileOutPut.getData().getDataBuffer();
+        int sizefileOutPut = datafileOutPut.getSize();
+        System.out.println(sizefileOutPut);
+
+        Boolean matchFlag = true;
+        if(sizefileInput == sizefileOutPut) {
+            for(int i=0; i<sizefileInput; i++) {
+                System.out.println(datafileInput.getElem(i) + " # " +  datafileOutPut.getElem(i));
+                if(datafileInput.getElem(i) != datafileOutPut.getElem(i)) {
+                    matchFlag = false;
+                    break;
+                }
+            }
+        }
+        else {
+            matchFlag = false;
+        }
+
+        Assert.assertTrue(matchFlag);
+    }
+
+    private static List<BufferedImage> getImagesFromPDF(PDDocument document) throws IOException {
+        List<BufferedImage> images = new ArrayList<>();
+        for (PDPage page : document.getPages()) {
+            images.addAll(getImagesFromResources(page.getResources()));
+        }
+
+        return images;
+    }
+
+    private static List<BufferedImage> getImagesFromResources(PDResources resources) throws IOException {
+        List<BufferedImage> images = new ArrayList<>();
+
+        for (COSName xObjectName : resources.getXObjectNames()) {
+            PDXObject xObject = resources.getXObject(xObjectName);
+
+            if (xObject instanceof PDFormXObject) {
+                images.addAll(getImagesFromResources(((PDFormXObject) xObject).getResources()));
+            } else if (xObject instanceof PDImageXObject) {
+                images.add(((PDImageXObject) xObject).getImage());
+            }
+        }
+
+        return images;
     }
 
     private static final class Contact {
