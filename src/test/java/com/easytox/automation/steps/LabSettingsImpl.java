@@ -425,17 +425,14 @@ public class LabSettingsImpl {
         BufferedImage bufferfileInput = ImageIO.read(downloadedLogo);
         DataBuffer datafileInput = bufferfileInput.getData().getDataBuffer();
         int sizefileInput = datafileInput.getSize();
-        System.out.println(sizefileInput);
 
         BufferedImage bufferfileOutPut = ImageIO.read(logo);
         DataBuffer datafileOutPut = bufferfileOutPut.getData().getDataBuffer();
         int sizefileOutPut = datafileOutPut.getSize();
-        System.out.println(sizefileOutPut);
 
         Boolean matchFlag = true;
         if(sizefileInput == sizefileOutPut) {
             for(int i=0; i<sizefileInput; i++) {
-                System.out.println(datafileInput.getElem(i) + " # " +  datafileOutPut.getElem(i));
                 if(datafileInput.getElem(i) != datafileOutPut.getElem(i)) {
                     matchFlag = false;
                     break;
