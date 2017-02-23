@@ -39,7 +39,6 @@ public class CompoundTestGroupImpl {
     private static final String ROWS_LOCATOR = "tr";
     private static final String TABLE_LOCATOR = "example";
     private static final String LIST_LOCATOR = "li";
-    private static final int TIME_STOP = 2000;
 
 
     private static final int TIME_OUT_IN_SECONDS = 10;
